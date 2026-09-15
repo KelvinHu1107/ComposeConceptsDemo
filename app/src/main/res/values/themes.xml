@@ -1,0 +1,4 @@
+<resources>
+    <!-- Compose 用 MaterialTheme 管顏色，這裡只需要一個最基本的 NoActionBar 母題即可 -->
+    <style name="Theme.ComposeConceptsDemo" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>
