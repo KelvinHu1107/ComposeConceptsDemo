@@ -1,62 +1,83 @@
 # Compose Concepts Demo
 
-一個最小可跑的 Android 專案，用 Jetpack Compose 實際示範面試準備計畫（Week 9：Jetpack Compose 基礎）裡提到的每個核心概念。每個畫面對應一堂課，程式碼裡有大量中文註解，說明「為什麼要這樣寫」而不只是「這裡在做什麼」。
+[中文說明](README.zh-TW.md)
 
-## 怎麼打開
+A small, runnable Android app that demonstrates the core Jetpack Compose ideas from my interview prep (Week 9). Each screen maps to one lesson. Comments in the code explain *why* a snippet is written this way, not only *what* it does.
 
-1. 用 Android Studio 開啟這個資料夾（`File > Open`）。
-2. 第一次開啟會自動跑 Gradle sync；如果沒有 `gradle-wrapper.jar`，Android Studio 通常會提示自動補上，或用選單 `File > Sync Project with Gradle Files`。
-3. 用實機或模擬器跑 `app` 這個 run configuration 即可。
-4. 最低支援 Android 7.0（minSdk 24）。
+This is a teaching demo, not a production architecture. There is no network or database layer, and state lives in the composables so each concept can be read in isolation.
 
-如果你自己有安裝 Gradle，也可以在專案根目錄執行：
+## Screenshots
+
+![Home menu](docs/screenshot-1.png)
+
+![State hoisting](docs/screenshot-2.png)
+
+![LazyColumn keys](docs/screenshot-3.png)
+
+## Stack
+
+- Kotlin 1.9.24
+- Jetpack Compose BOM 2024.09.00 (Kotlin compiler extension 1.5.14)
+- Material 3
+- Navigation Compose 2.8.0
+- Coroutines 1.8.1
+- Android Gradle Plugin 8.5.2 / Gradle 8.7
+- `minSdk` 24 · `compileSdk` / `targetSdk` 34
+- `applicationId`: `com.kelvin.composeconcepts`
+
+## Run it
+
+1. Open this folder in Android Studio (`File > Open`).
+2. Wait for Gradle sync, then run the `app` configuration on an emulator or a device (Android 7.0 or later).
+3. From the command line:
 
 ```bash
-gradle wrapper --gradle-version 8.7
+./gradlew :app:installDebug
 ```
 
-補上 wrapper jar 之後改用 `./gradlew` 指令。
+## Screens
 
-## 畫面對照表
+The home screen is a menu. Each item opens one lesson:
 
-打開 App 會看到一個首頁選單，每一項對應一堂課：
-
-| 畫面 | 對應課程 | 示範內容 |
+| Screen | Lesson | What it shows |
 |---|---|---|
-| `MentalModelScreen` | L-W9-1 宣告式心智模型 | 命令式 vs 宣告式對照、Composable 是「描述」不是「建立物件」 |
-| `StateHoistingScreen` | L-W9-2 State Hoisting | `remember` vs `rememberSaveable`（旋轉螢幕測差異）、Hoisted 元件寫法 |
-| `RecompositionScreen` | L-W9-3 Recomposition 效能陷阱 | 用肉眼可見的重組計數器示範 `derivedStateOf` 怎麼減少不必要的重組 |
-| `InteropScreen` | L-W9-4 Compose/View 互操作 | `AndroidView` 把一個真正的舊 `TextView` 嵌進 Compose 畫面 |
-| `SideEffectsScreen` | L-W9-5 Side-effect API | `LaunchedEffect`、`DisposableEffect`、`rememberCoroutineScope` 各自什麼時候觸發 |
-| `LayoutModifierScreen` | L-W9-6 Layout 與 Modifier | **Modifier 順序陷阱**（padding 在 clickable 前後，點擊範圍完全不同）|
-| `LazyListScreen` | L-W9-7 LazyColumn | 重現「沒給 key 會怎樣」的真實 bug——刪除項目後展開狀態跑到別筆資料上 |
-| `AnimationGestureScreen` | L-W9-9 動畫與手勢 API | `animateDpAsState`／`animateColorAsState`、`pointerInput` 拖曳手勢 |
-| `MentalModelScreenTest`（androidTest）| L-W9-8／L-W9-10 | Navigation 版面外的補充：Compose 測試示範（`createComposeRule`、語意樹查詢）|
+| `MentalModelScreen` | L-W9-1 Declarative mental model | Imperative vs declarative contrast; a composable describes UI, it does not “construct objects” the way a View hierarchy does |
+| `StateHoistingScreen` | L-W9-2 State hoisting | `remember` vs `rememberSaveable` (rotate the device to see the difference), and a hoisted composable |
+| `RecompositionScreen` | L-W9-3 Recomposition | A visible recomposition counter that shows how `derivedStateOf` avoids extra work |
+| `InteropScreen` | L-W9-4 Compose / View interop | `AndroidView` embedding a real legacy `TextView` (`LegacyCounterView`) |
+| `SideEffectsScreen` | L-W9-5 Side-effect APIs | When `LaunchedEffect`, `DisposableEffect`, and `rememberCoroutineScope` run |
+| `LayoutModifierScreen` | L-W9-6 Layout and modifiers | Modifier order: padding before vs after `clickable` changes the hit area |
+| `LazyListScreen` | L-W9-7 LazyColumn | Reproduces the missing-`key` bug: after a deletion, expanded state jumps to the wrong item |
+| `AnimationGestureScreen` | L-W9-9 Animation and gestures | `animateDpAsState` / `animateColorAsState`, plus a `pointerInput` drag |
 
-L-W9-8（Navigation Compose 與 Material3 Theming）沒有獨立畫面，而是貫穿整個 App：`navigation/AppNavHost.kt` 定義所有畫面路由，`ui/theme/Theme.kt` 則是 Material3 主題設定，兩者都有詳細註解。
+L-W9-8 (Navigation Compose and Material 3 theming) has no separate screen. Routes live in `navigation/AppNavHost.kt` (simple string routes, which the comments note are not type-safe). The theme is in `ui/theme/Theme.kt`.
 
-## 特別想讓你「動手看到」而不是「讀文字」的地方
+The in-code comments are in Traditional Chinese.
 
-- **State Hoisting 畫面**：請實際旋轉手機/模擬器螢幕，親眼看 `remember` 版本歸零、`rememberSaveable` 版本保留數值。
-- **LazyColumn 畫面**：按照 `LazyListScreen.kt` 檔案開頭註解裡寫的操作步驟做一次，會直接重現「沒給 key」造成的展開狀態錯位 bug，比看文字說明有感多了。
-- **Modifier 順序畫面**：點兩個看起來一樣的方塊的「留白邊緣」，感受點擊範圍的差異。
+## What to try
 
-## 執行測試
+- **State hoisting:** rotate the device or emulator. The `remember` counter resets; the `rememberSaveable` counter keeps its value.
+- **LazyColumn:** in both lists, expand the second row (`Bob`), then tap **刪除第一項** (Delete the first item) at the top. In the list without keys, the expanded state sticks to the position and appears on `Carol`. In the list with keys (`person.id`), it stays on `Bob`.
+- **Modifier order:** tap the padding around the two similar boxes and compare the clickable area.
+
+## Tests
+
+There is one instrumented Compose UI test, `MentalModelScreenTest`, which uses `createComposeRule`, finds nodes by text in the semantics tree, taps **+1** and **重設**, and asserts that the counter goes from `目前數字：0` to `目前數字：1` and back.
+
+With an emulator or device connected:
 
 ```bash
 ./gradlew connectedAndroidTest
 ```
 
-（需要有模擬器或實機連線）會執行 `MentalModelScreenTest`，驗證 `+1`／`重設` 按鈕的行為，同時示範 Compose 測試怎麼透過語意樹查詢畫面內容，而不是操作 View 物件本身。
+## What this project does not include
 
-## 這個專案沒有做的事
+This is a minimal teaching app, on purpose:
 
-這是教學用的最小示範，刻意不包含：
-
-- 真正的網路/資料庫存取（Side-effect 範例用 `delay()` 模擬）
-- 完整的 MVVM/Repository 分層（所有 state 都直接放在 Composable 裡，方便你一眼看懂單一概念，不用先理解額外的架構）
-- Compose Multiplatform、Wear OS 等進階平台整合
+- No real network or database access (the side-effect sample uses `delay()`)
+- No MVVM / Repository layer (state stays in the composables so one concept can be read at a time)
+- No Hilt, no Room, no Compose Multiplatform, no Wear OS, no AAOS
 
 ---
 
-由 [Claude Code](https://claude.com/claude-code) 協助產生，作為 Kelvin 的 Android 面試準備筆記的一部分。
+Written as part of my Android interview prep notes, with assistance from [Claude Code](https://claude.com/claude-code).
